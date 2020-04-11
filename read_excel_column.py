@@ -57,4 +57,4 @@ def read_done_inRef(path):
     read_done_in(path, '端子引用')
 
 
-read_done_inRef('test/井门.xls')
+#read_done_inRef('test/井门.xls')

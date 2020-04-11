@@ -1,7 +1,8 @@
-import Device
+from Class import Device
+from Class.Object import Object
 
 
-class Match:
+class Match(Object):
 
 
 
