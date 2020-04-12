@@ -1,7 +1,7 @@
 
 import pandas as pd
 class Object(object):
-    chinese_name = '物质'
+    chinese_name = ''
     def __init__(self, str):
         self.str = str
 

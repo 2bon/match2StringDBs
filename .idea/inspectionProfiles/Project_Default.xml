@@ -5,6 +5,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="Device.*" />
+          <option value="Class.KnowledgeBase.KnowledgeBase" />
         </list>
       </option>
     </inspection_tool>

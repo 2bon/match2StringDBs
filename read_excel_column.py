@@ -1,5 +1,6 @@
 import pandas as pd
 
+print( pd.ExcelFile('test/井门.xls').parse('已配置')['开出端子号'])
 
 def read_excel_column(path: str, sheet: str, column: str) -> list:
     """
@@ -12,6 +13,9 @@ def read_excel_column(path: str, sheet: str, column: str) -> list:
 
 
 # read_excel_column('test/井门.xls','已配置','开出端子描述')
+def read_done(path, column):
+    read_excel_column(path, '已配置', column)
+
 def read_done(path, column):
     read_excel_column(path, '已配置', column)
 
