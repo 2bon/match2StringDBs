@@ -4,7 +4,8 @@ from Class.Object import Object
 class Port(Object):
     chinese_name = '端子'
 
-    def __init__(self, num, description: str, reference):
+    def __init__(self, deviceName, num, description: str, reference):
+        self.deviceName = deviceName
         if 'Goose' in num:
             if 'sv' in num:
                 #print(num)
