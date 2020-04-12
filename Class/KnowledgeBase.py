@@ -14,6 +14,7 @@ class KnowledgeBase():
            #print(row[1]['开出端子引用'])
            outPort = Port(row[1]['开出端子号'],row[1]['开出端子描述'],row[1]['开出端子引用'])
 
+
     def read_excel_column(path: str, sheet: str, column: str) -> list:
         """
 
