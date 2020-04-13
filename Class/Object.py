@@ -2,14 +2,11 @@
 import pandas as pd
 class Object(object):
     chinese_name = ''
-    def __init__(self, str):
-        self.str = str
+    def __init__(self, value:str):
+        self.value = value
+    def __init__(self, strMapList):
+        for key, value in strMapList:
+            if self.chinese_name in key:
+                self.value = value
 
-    def read_excel_column(path: str, sheet: str, column: str) -> list:
-        """
 
-        :rtype: list
-        """
-        df = pd.ExcelFile(path).parse(sheet)[column]
-        print(df)
-        return df
