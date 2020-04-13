@@ -12,22 +12,25 @@ from Class.Port import Port
 
 class KnowledgeBase():
     matchList = [Match]
+
     def learn_folder(path2folder='../test/'):
         for filename in os.listdir(path2folder):
             if filename.endswith(".xls") or filename.endswith(".csv"):
-                KnowledgeBase.learn_excel(path2folder+filename)
+                KnowledgeBase.learn_excel(path2folder + filename)
             else:
                 continue
 
     def learn_excel(path2excel='../test/井门.xls'):
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         for row in sheet.iterrows():
-            outPort = Port(row[1]['开出设备名称'], row[1]['开出端子号'], row[1]['开出端子描述'], row[1]['开出端子引用'])
-            inPort = Port(row[1]['开入设备名称'], row[1]['开入端子号'], 0, row[1]['开入端子引用'])
-            match = Match(outPort, inPort)
-            KnowledgeBase.matchList.append(match)
+            try:
+                outPort = Port(row[1]['开出设备名称'], row[1]['开出端子号'], row[1]['开出端子描述'], row[1]['开出端子引用'])
+                inPort = Port(row[1]['开入设备名称'], row[1]['开入端子号'], 0, row[1]['开入端子引用'])
+                match = Match(outPort, inPort)
+                KnowledgeBase.matchList.append(match)
+            except RuntimeError:
+                print(row[1])
         print((KnowledgeBase.matchList))
-
 
 
 def read_excel_column(path: str, sheet: str, column: str) -> list:
