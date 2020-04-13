@@ -13,14 +13,14 @@ from Class.Port import Port
 class KnowledgeBase():
     matchList = [Match]
 
-    def learn_folder(path2folder='../test/'):
+    def learn_folder(path2folder='..\excel\learn/'):
         for filename in os.listdir(path2folder):
             if filename.endswith(".xls") or filename.endswith(".csv"):
                 KnowledgeBase.learn_excel(path2folder + filename)
             else:
                 continue
 
-    def learn_excel(path2excel='../test/井门.xls'):
+    def learn_excel(path2excel='..\excel\learn/井门.xls'):
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         for row in sheet.iterrows():
             try:
