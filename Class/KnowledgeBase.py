@@ -22,10 +22,11 @@ class KnowledgeBase():
 
     def learn_excel(path2excel='..\excel\learn/井门.xls'):
         sheet = pd.ExcelFile(path2excel).parse('已配置')
+        #print(path2excel)
         for row in sheet.iterrows():
             try:
                 outPort = Port(row[1]['开出设备名称'], row[1]['开出端子号'], row[1]['开出端子描述'], row[1]['开出端子引用'])
-                inPort = Port(row[1]['开入设备名称'], row[1]['开入端子号'], 0, row[1]['开入端子引用'])
+                inPort = Port(row[1]['开入设备名称'],row[1]['开入端子号'], row[1]['开入端子描述'], row[1]['开入端子引用'])
                 match = Match(outPort, inPort)
                 KnowledgeBase.matchList.append(match)
             except RuntimeError:
