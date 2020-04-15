@@ -1,3 +1,4 @@
+import glob
 import os
 
 import pandas as pd
@@ -14,9 +15,9 @@ class KnowledgeBase():
     matchList = [Match]
 
     def learn_folder(path2folder='..\excel\learn/'):
-        for filename in os.listdir(path2folder):
+        for filename in glob.iglob(path2folder + '**/*.xls', recursive=True):
             if filename.endswith(".xls") or filename.endswith(".csv"):
-                KnowledgeBase.learn_excel(path2folder + filename)
+                KnowledgeBase.learn_excel(filename)
             else:
                 continue
 
