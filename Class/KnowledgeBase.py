@@ -1,6 +1,6 @@
 import glob
 import os
-import jsonpickle # pip install jsonpickle
+import jsonpickle  # pip install jsonpickle
 import json
 
 import pandas as pd
@@ -26,19 +26,29 @@ class KnowledgeBase():
     def learn_excel(path2excel='..\excel\learn/井门.xls'):
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         print(path2excel)
-        for row in sheet.iterrows():
-            try:
-                outPort = Port( row[1]['开出端子描述'], row[1]['开出端子引用'],row[1]['开出设备名称'], row[1]['开出端子号'])
-                inPort = Port( row[1]['开入端子描述'], row[1]['开入端子引用'],row[1]['开入设备名称'],row[1]['开入端子号'],)
+        try:
+            sheet2=transform(sheet)
+            for key, value in sheet2.items():
+                print(key,' = ', value)
+                outPort = Port(row[1]['开出端子描述'], row[1]['开出端子引用'], row[1]['开出端子号'], )
+                inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'], row[1]['开入设备名称'], row[1]['开入端子号'], )
                 match = Match(outPort, inPort)
-                print(vars(inPort))
-                print(vars(outPort))
-                serialized = jsonpickle.encode(match)
-                print(json.dumps(json.loads(serialized), indent=4) )
                 KnowledgeBase.matchList.append(match)
-            except RuntimeError:
-                print(row[1])
+        except RuntimeError:
+            print(row[1])
         print(dir(KnowledgeBase.matchList))
+
+
+def transform(multilevelDict):
+
+    return {str(key).replace("\n", ""):
+                (transform(value)
+                 if isinstance(value, dict)
+                 else value
+                 )
+            for key, value in
+            multilevelDict.items()
+            }
 
 
 def read_excel_column(path: str, sheet: str, column: str) -> list:
@@ -51,4 +61,4 @@ def read_excel_column(path: str, sheet: str, column: str) -> list:
     return df
 
 
-KnowledgeBase.learn_excel()
+KnowledgeBase.learn_folder()
