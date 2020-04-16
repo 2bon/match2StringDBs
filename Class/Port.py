@@ -4,7 +4,9 @@ from Class.Object import Object
 class Port(Object):
     chinese_name = '端子'
 
-    def __init__(self, deviceName, num, description: str, reference):
+    def __init__(self, description: str, reference, deviceName=0, num=0):
+        self.description = description
+        self.reference = reference
         self.deviceName = deviceName
         num = str(num)
         if len(num)>0:
@@ -24,5 +26,3 @@ class Port(Object):
             else:
                 self.isOut = False
         self.num = num
-        self.description = description
-        self.reference = reference

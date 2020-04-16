@@ -28,8 +28,8 @@ class KnowledgeBase():
         print(path2excel)
         for row in sheet.iterrows():
             try:
-                outPort = Port(row[1]['开出设备名称'], row[1]['开出端子号'], row[1]['开出端子描述'], row[1]['开出端子引用'])
-                inPort = Port(row[1]['开入设备名称'],row[1]['开入端子号'], row[1]['开入端子描述'], row[1]['开入端子引用'])
+                outPort = Port( row[1]['开出端子描述'], row[1]['开出端子引用'],row[1]['开出设备名称'], row[1]['开出端子号'])
+                inPort = Port( row[1]['开入端子描述'], row[1]['开入端子引用'],row[1]['开入设备名称'],row[1]['开入端子号'],)
                 match = Match(outPort, inPort)
                 print(vars(inPort))
                 print(vars(outPort))
