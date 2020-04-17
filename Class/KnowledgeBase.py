@@ -14,30 +14,30 @@ from Class.Port import Port
 
 
 class KnowledgeBase():
-    matchList = [Match]
+    def __init__(self, matchList : [Match]=[Match], outPortList: [Port]=[Port], inPortList: [Port]=[Port]):
+        self.matchList = matchList
+        self.outPortList = outPortList
+        self.inPortList = inPortList
 
-    def learn_folder(path2folder='..\excel\learn/'):
+    def learn_folder(self,path2folder='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元'):
         for filename in glob.iglob(path2folder + '**/*.xls', recursive=True):
             if filename.endswith(".xls") or filename.endswith(".csv"):
-                KnowledgeBase.learn_excel(filename)
+                self.learn_excel(filename)
             else:
                 continue
 
-    def learn_excel(path2excel='..\excel\learn/井门.xls'):
+    def learn_excel(self,path2excel='..\excel\learn/井门.xls'):
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         print(path2excel)
         try:
-            #sheet2=transform(sheet)#sheet2 order entry by column, I need getRow()
             for row in sheet.iterrows():
-                #key, value in sheet2.items(),
-                #print(key,' = ', value)
-                outPort = Port(row[1]['开出端子描述'], row[1]['开出端子引用'], row[1]['开出端子号'], )
-                inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'], row[1]['开入设备名称'], row[1]['开入端子号'], )
+                outPort = Port(row[1]['开出端子描述'], row[1]['开出端子引用'] )
+                inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'] )
                 match = Match(outPort, inPort)
-                KnowledgeBase.matchList.append(match)
+                self.matchList.append(match)
         except RuntimeError:
             print(row[1])
-        print(dir(KnowledgeBase.matchList))
+        print(dir(self.matchList))
 
 
 def transform(multilevelDict):
@@ -61,5 +61,5 @@ def read_excel_column(path: str, sheet: str, column: str) -> list:
     print(df)
     return df
 
-
-KnowledgeBase.learn_folder()
+kb = KnowledgeBase()
+kb.learn_folder()
