@@ -27,9 +27,10 @@ class KnowledgeBase():
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         print(path2excel)
         try:
-            sheet2=transform(sheet)
-            for key, value in sheet2.items():
-                print(key,' = ', value)
+            #sheet2=transform(sheet)#sheet2 order entry by column, I need getRow()
+            for row in sheet.iterrows():
+                #key, value in sheet2.items(),
+                #print(key,' = ', value)
                 outPort = Port(row[1]['开出端子描述'], row[1]['开出端子引用'], row[1]['开出端子号'], )
                 inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'], row[1]['开入设备名称'], row[1]['开入端子号'], )
                 match = Match(outPort, inPort)
