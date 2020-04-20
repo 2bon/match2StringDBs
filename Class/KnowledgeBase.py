@@ -28,7 +28,6 @@ class KnowledgeBase():
 
     def learn_excel(self,path2excel='..\excel\learn/井门.xls'):
         sheet = pd.ExcelFile(path2excel).parse('已配置')
-        print(path2excel)
         try:
             for row in sheet.iterrows():
                 outPort = Port(row[1]['开出端子描述'], row[1]['开出端子引用'] )
@@ -39,6 +38,25 @@ class KnowledgeBase():
             print(row[1])
         print(dir(self.matchList))
 
+    def load_excel(self,path2excel='..\excel\learn/井门.xls',sheetName = '所有发送'):
+        sheet = pd.ExcelFile(path2excel).parse(sheetName)
+        try:
+            for row in sheet.iterrows():
+                outPort = Port(row[1]['开出端子描述'], row[1]['开出端子引用'] )
+                self.outPortList.append(outPort)
+        except RuntimeError:
+            print(row[1])
+        print(dir(self.outPortList))
+
+    def load_excel(self,path2excel='..\excel\learn/井门.xls',sheetName = '所有发送', title = '开出'):
+        sheet = pd.ExcelFile(path2excel).parse(sheetName)
+        try:
+            for row in sheet.iterrows():
+                port = Port(row[1][title+'端子描述'], row[1][title+'端子引用'] )
+                self.portList.append(port)
+        except RuntimeError:
+            print(row[1])
+        print(dir(self.portList))
 
 def transform(multilevelDict):
 
@@ -52,14 +70,6 @@ def transform(multilevelDict):
             }
 
 
-def read_excel_column(path: str, sheet: str, column: str) -> list:
-    """
-
-    :rtype: list
-    """
-    df = pd.ExcelFile(path).parse(sheet)[column]
-    print(df)
-    return df
 
 kb = KnowledgeBase()
 kb.learn_folder()
