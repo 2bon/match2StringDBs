@@ -4,8 +4,6 @@ from Class.Object import Object
 
 class Match(Object):
 
-    def __init__(self):
-        pass
     def __init__(self, outPort: Port, inPort: Port):
         self.outPort = outPort
         self.inPort = inPort

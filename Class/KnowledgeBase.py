@@ -1,22 +1,18 @@
 import glob
-import os
-import jsonpickle  # pip install jsonpickle
-import json
 
 import pandas as pd
 
-from Class import *
-from Class.Device import Device
+import Matrix
 from Class.Match import Match
-from Class.Object import Object
-import Class
 from Class.Port import Port
 
 
 class KnowledgeBase():
     def __init__(self, matchList: [Match] = [Match], outPortList: [Port] = [Port], inPortList: [Port] = [Port]):
         self.matchList = matchList
-        self.portListDict = {}
+        self.portListDict = {str: [Port]}
+        self.matrixListDict = {str: Matrix}
+        self.similarityMatrix = {str: {str: float}}
 
     def learn_folder(self, path2folder='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元'):
         for filename in glob.iglob(path2folder + '**/*.xls', recursive=True):
@@ -43,7 +39,7 @@ class KnowledgeBase():
 
     def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls', sheetName='所有发送', title='开出'):
         sheet = pd.ExcelFile(path2excel).parse(sheetName)
-        key = path2excel + sheetName + title
+        key: str = path2excel + sheetName + title
         portList = self.portListDict.get(key, [Port])
         try:
             for row in sheet.iterrows():
