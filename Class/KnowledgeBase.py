@@ -11,6 +11,7 @@ class KnowledgeBase():
     def __init__(self, matchList: [Match] = [Match], outPortList: [Port] = [Port], inPortList: [Port] = [Port]):
         self.matchList = matchList
         self.portListDict = {str: [Port]}
+        self.portDict = {str: Port}
         self.matrixDict = {str: Matrix}  # in,out,match
 
     def learn_folder(self, path2folder='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元'):
@@ -43,6 +44,11 @@ class KnowledgeBase():
             for row in sheet.iterrows():
                 port = Port(row[1][title + '端子描述'], row[1][title + '端子引用'])
                 portList.append(port)
+                key2 = row[1][title + '端子描述'] + title + row[1][title + '端子引用']
+                self.portDict[key2] = port
+                matrix = self.matrixDict.get(title, Matrix)
+                if sheetName == '已配置':
+                    port = matrix.get(key2,{object: float})
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
