@@ -1,8 +1,8 @@
 import glob
 
 import pandas as pd
+import pandas.DataFrame as df
 
-import Matrix
 from Class.Match import Match
 from Class.Port import Port
 
@@ -12,7 +12,7 @@ class KnowledgeBase():
         self.matchList = matchList
         self.portListDict = {str: [Port]}
         self.portDict = {str: Port}
-        self.matrixDict = {str: Matrix}  # in,out,match
+        self.dfDict = {str: df}  # in,out,match
 
     def learn_folder(self, path2folder='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元'):
         for filename in glob.iglob(path2folder + '**/*.xls', recursive=True):
@@ -29,9 +29,9 @@ class KnowledgeBase():
                 inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'])
                 match = Match(outPort, inPort)
                 self.matchList.append(match)
-                matrix = self.matrixDict.get('开出', Matrix)
+                df = self.dfDict.get('开出', df)
                 key = row[1]['开出端子描述'] + row[1]['开出端子引用']
-                port = matrix.get(key)
+                port = df.get(key)
         except RuntimeError:
             print(row[1])
         print(dir(self.matchList))
@@ -46,11 +46,11 @@ class KnowledgeBase():
                 portList.append(port)
                 key2 = row[1][title + '端子描述'] + title + row[1][title + '端子引用']
                 self.portDict[key2] = port
-                matrix = self.matrixDict.get(title, Matrix)
+                df = self.dfDict.get(title, df)
                 if sheetName == '已配置':
-                    matrix[key2] = matrix.get(key2, {object: float})
+                    df[key2] = df.get(key2, {object: float})
                 else:  # new
-                    for done in matrix:
+                    for done in df:
                         done[key2] = done.get(key2, float)  # is autoFill metaData useful?
             self.portListDict[key] = portList
         except RuntimeError:
