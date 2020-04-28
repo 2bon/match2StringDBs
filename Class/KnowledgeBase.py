@@ -48,15 +48,19 @@ class KnowledgeBase():
                 self.portDict[key2] = port
                 matrix = self.matrixDict.get(title, Matrix)
                 if sheetName == '已配置':
-                    port = matrix.get(key2,{object: float})
+                    matrix[key2] = matrix.get(key2, {object: float})
+                else:  # new
+                    for done in matrix:
+                        done[key2] = done.get(key2, float)  # is autoFill metaData useful?
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
         print(dir(portList))
 
-    def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
-        self.load_excel(path2excel, sheetName='所有发送', title='开出')
-        self.load_excel(path2excel, sheetName='所有接收', title='开入')
+
+def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
+    self.load_excel(path2excel, sheetName='所有发送', title='开出')
+    self.load_excel(path2excel, sheetName='所有接收', title='开入')
 
 
 def transform(multilevelDict):
