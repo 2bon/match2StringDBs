@@ -1,7 +1,7 @@
 import glob
 
 import pandas as pd
-import pandas.DataFrame as df
+from pandas import DataFrame
 
 from Class.Match import Match
 from Class.Port import Port
@@ -29,9 +29,6 @@ class KnowledgeBase():
                 inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'])
                 match = Match(outPort, inPort)
                 self.matchList.append(match)
-                df = self.dfDict.get('开出', df)
-                key = row[1]['开出端子描述'] + row[1]['开出端子引用']
-                port = df.get(key)
         except RuntimeError:
             print(row[1])
         print(dir(self.matchList))
@@ -46,12 +43,12 @@ class KnowledgeBase():
                 portList.append(port)
                 key2 = row[1][title + '端子描述'] + title + row[1][title + '端子引用']
                 self.portDict[key2] = port
-                df = self.dfDict.get(title, df)
+                df = self.dfDict.get(title, DataFrame)
                 if sheetName == '已配置':
                     df[key2] = df.get(key2, {object: float})
                 else:  # new
-                    for done in df:
-                        done[key2] = done.get(key2, float)  # is autoFill metaData useful?
+                    if key2 not in df.index:
+                        df.index.add(key2)
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
