@@ -33,32 +33,31 @@ class KnowledgeBase():
             print(row[1])
         print(dir(self.matchList))
 
-    def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls', sheetName='所有发送', title='开出'):
+    def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls', sheetName='所有发送', inOut='开出'):
         sheet = pd.ExcelFile(path2excel).parse(sheetName)
-        key: str = path2excel + sheetName + title
+        key: str = path2excel + sheetName + inOut
         portList = self.portListDict.get(key, [Port])
         try:
             for row in sheet.iterrows():
-                port = Port(row[1][title + '端子描述'], row[1][title + '端子引用'])
+                port = Port(row[1][inOut + '端子描述'], row[1][inOut + '端子引用'])
                 portList.append(port)
-                key2 = row[1][title + '端子描述'] + title + row[1][title + '端子引用']
+                key2 = row[1][inOut + '端子描述'] + inOut + row[1][inOut + '端子引用']
                 self.portDict[key2] = port
-                df = self.dfDict.get(title, DataFrame())
+                df = self.dfDict.get(inOut, DataFrame())
                 if sheetName == '已配置':
                     df[key2] = df.get(key2, {object: float})
                 else:  # new
-                   if key2 not in df.index:
-                        df=df.reindex({key2})
-                        print (df.index)
-
+                    if key2 not in df.index:
+                        df = df.reindex(df.index.tolist() + [key2])
+                self.dfDict[inOut] = df
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
-
+        print(df)
 
     def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
-        self.load_excel(path2excel, sheetName='所有发送', title='开出')
-        self.load_excel(path2excel, sheetName='所有接收', title='开入')
+        self.load_excel(path2excel, sheetName='所有发送', inOut='开出')
+        self.load_excel(path2excel, sheetName='所有接收', inOut='开入')
 
 
 def transform(multilevelDict):
