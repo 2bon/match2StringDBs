@@ -44,14 +44,12 @@ class KnowledgeBase():
                 key2 = row[1][title + '端子描述'] + title + row[1][title + '端子引用']
                 self.portDict[key2] = port
                 df = self.dfDict.get(title, DataFrame())
-                df2=DataFrame()
                 if sheetName == '已配置':
                     df[key2] = df.get(key2, {object: float})
                 else:  # new
                    if key2 not in df.index:
-                        df2.reindex([key2])
-                        print (df2.index[key2])
-
+                        df=df.reindex({key2})
+                        print (df.index)
 
             self.portListDict[key] = portList
         except RuntimeError:
