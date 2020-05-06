@@ -33,12 +33,11 @@ class KnowledgeBase():
                 self.matchList.append(match)
                 global df
                 df = self.dfDict.get('匹配', DataFrame())
-                key2 = row[1]['开出端子描述'] + row[1]['开出端子引用']+'匹配' + row[1]['开入端子描述'] + row[1]['开入端子引用']
+                key2 = row[1]['开出端子描述'] + row[1]['开出端子引用'] + '匹配' + row[1]['开入端子描述'] + row[1]['开入端子引用']
                 df[key2] = df.get(key2)
                 self.dfDict['匹配'] = df
         except RuntimeError:
             print(row[1])
-        print(df)
 
     def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls', sheetName='所有发送', inOut='开出'):
         sheet = pd.ExcelFile(path2excel).parse(sheetName)
@@ -61,12 +60,16 @@ class KnowledgeBase():
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
-        print(df)
 
     def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
         self.load_excel(path2excel, sheetName='所有发送', inOut='开出')
         self.load_excel(path2excel, sheetName='所有接收', inOut='开入')
 
+    def main(self, ):
+        self.learn_folder()
+        self.load_test()
+        for df in self.dfDict.values():
+            print(df)
 
 def transform(multilevelDict):
     return {str(key).replace("\n", ""):
@@ -80,5 +83,4 @@ def transform(multilevelDict):
 
 
 kb = KnowledgeBase()
-kb.learn_folder()
-kb.load_test()
+kb.main()
