@@ -22,6 +22,8 @@ class KnowledgeBase():
                 continue
 
     def learn_excel(self, path2excel):
+        self.load_excel(path2excel, sheetName='已配置', inOut='开出')
+        self.load_excel(path2excel, sheetName='已配置', inOut='开入')
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         try:
             for row in sheet.iterrows():
@@ -43,9 +45,10 @@ class KnowledgeBase():
                 portList.append(port)
                 key2 = row[1][inOut + '端子描述'] + inOut + row[1][inOut + '端子引用']
                 self.portDict[key2] = port
+                global df
                 df = self.dfDict.get(inOut, DataFrame())
                 if sheetName == '已配置':
-                    df[key2] = df.get(key2, {object: float})
+                    df[key2] = df.get(key2)
                 else:  # new
                     if key2 not in df.index:
                         df = df.reindex(df.index.tolist() + [key2])
