@@ -31,9 +31,14 @@ class KnowledgeBase():
                 inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'])
                 match = Match(outPort, inPort)
                 self.matchList.append(match)
+                global df
+                df = self.dfDict.get('匹配', DataFrame())
+                key2 = row[1]['开出端子描述'] + row[1]['开出端子引用']+'匹配' + row[1]['开入端子描述'] + row[1]['开入端子引用']
+                df[key2] = df.get(key2)
+                self.dfDict['匹配'] = df
         except RuntimeError:
             print(row[1])
-        print(dir(self.matchList))
+        print(df)
 
     def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls', sheetName='所有发送', inOut='开出'):
         sheet = pd.ExcelFile(path2excel).parse(sheetName)
