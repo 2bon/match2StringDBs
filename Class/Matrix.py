@@ -8,7 +8,7 @@ from Class.Port import Port
 from Class.get2txt_similarity import get2txt_similarity
 
 
-class KnowledgeBase():
+class kb2():
     sheetNameList = ['开出', '开入', '匹配']
 
     def __init__(self, matchList: [Match] = [Match], outPortList: [Port] = [Port], inPortList: [Port] = [Port]):
@@ -72,10 +72,9 @@ class KnowledgeBase():
         self.load_excel(path2excel, sheetName='所有发送', inOut='开出')
         self.load_excel(path2excel, sheetName='所有接收', inOut='开入')
 
-    def main(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/KnowledgeBase.xlsx'):
+    def main(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/kb2.xlsx'):
         # for sheetName in self.sheetNameList:
         #     self.dfDict[sheetName] = pd.ExcelFile(path2excel).parse(sheetName)  # load history
-        # self.learn_folder()
         self.learn_excel('..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls')
         self.load_test()
         with pd.ExcelWriter(path2excel) as writer:
@@ -94,5 +93,5 @@ class KnowledgeBase():
                 }
 
 
-kb = KnowledgeBase()
-kb.main()
+kb2 = kb2()
+kb2.main()
