@@ -8,11 +8,15 @@ from Class.Port import Port
 
 
 class KnowledgeBase():
+    sheetNameList = ['开出', '开入', '匹配']
+
     def __init__(self, matchList: [Match] = [Match], outPortList: [Port] = [Port], inPortList: [Port] = [Port]):
         self.matchList = matchList
         self.portListDict = {str: [Port]}
         self.portDict = {str: Port}
-        self.dfDict = {str: DataFrame()}  # in,out,match
+        self.dfDict = {}
+        for sheetName in self.sheetNameList:
+            self.dfDict[sheetName] = DataFrame()  # in,out,match
 
     def learn_folder(self, path2folder='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元'):
         for filename in glob.iglob(path2folder + '**/*.xls', recursive=True):
@@ -65,21 +69,25 @@ class KnowledgeBase():
         self.load_excel(path2excel, sheetName='所有发送', inOut='开出')
         self.load_excel(path2excel, sheetName='所有接收', inOut='开入')
 
-    def main(self, ):
+    def main(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/KnowledgeBase.xlsx'):
+        # for sheetName in self.sheetNameList:
+        #     self.dfDict[sheetName] = pd.ExcelFile(path2excel).parse(sheetName)  # load history
         self.learn_folder()
         self.load_test()
-        for df in self.dfDict.values():
-            print(df)
+        with pd.ExcelWriter(path2excel) as writer:
+            for key, df in self.dfDict.items():
+                print(key, df)
+                df.to_excel(writer, sheet_name=key)
 
-def transform(multilevelDict):
-    return {str(key).replace("\n", ""):
-                (transform(value)
-                 if isinstance(value, dict)
-                 else value
-                 )
-            for key, value in
-            multilevelDict.items()
-            }
+    def transform(self, multilevelDict):
+        return {str(key).replace("\n", ""):
+                    (self.transform(value)
+                     if isinstance(value, dict)
+                     else value
+                     )
+                for key, value in
+                multilevelDict.items()
+                }
 
 
 kb = KnowledgeBase()
