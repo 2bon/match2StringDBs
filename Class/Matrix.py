@@ -2,14 +2,15 @@ import glob
 
 import pandas as pd
 from pandas import DataFrame
+from strsimpy.levenshtein import Levenshtein
 
 from Class.Match import Match
 from Class.Port import Port
-from Class.get2txt_similarity import get2txt_similarity
 
 
 class kb2():
     sheetNameList = ['开出', '开入', '匹配']
+    levenshtein = Levenshtein()
 
     def __init__(self, matchList: [Match] = [Match], outPortList: [Port] = [Port], inPortList: [Port] = [Port]):
         self.matchList = matchList
@@ -62,7 +63,7 @@ class kb2():
                     if key2 not in df.index:
                         df = df.reindex(df.index.tolist() + [key2])
                         for done in df:
-                            df[done][key2] = get2txt_similarity(done, key2)
+                            df[done][key2] = self.levenshtein.distance(done, key2)
                 self.dfDict[inOut] = df
             self.portListDict[key] = portList
         except RuntimeError:
