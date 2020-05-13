@@ -63,6 +63,7 @@ class kb2():
                     if key2 not in df.index:
                         df = df.reindex(df.index.tolist() + [key2])
                         for done in df:
+                            # for function in strsimpy.functions:
                             df[done][key2] = self.levenshtein.distance(done, key2)
                 self.dfDict[inOut] = df
             self.portListDict[key] = portList
