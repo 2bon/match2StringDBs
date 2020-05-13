@@ -1,6 +1,7 @@
 import glob
 
 import pandas as pd
+import time
 from pandas import DataFrame
 from strsimpy.levenshtein import Levenshtein
 
@@ -48,10 +49,11 @@ class kb2():
     def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls', sheetName='所有发送', inOut='开出'):
         sheet = pd.ExcelFile(path2excel).parse(sheetName)
         key: str = path2excel + sheetName + inOut
-        portList = self.portListDict.get(key, [Port])
+        portList = self.portListDict.get(key, [])
         try:
             for row in sheet.iterrows():
                 port = Port(row[1][inOut + '端子描述'], row[1][inOut + '端子引用'])
+                # print(vars(port))
                 portList.append(port)
                 key2 = row[1][inOut + '端子描述'] + inOut + row[1][inOut + '端子引用']
                 self.portDict[key2] = port
@@ -73,16 +75,38 @@ class kb2():
     def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
         self.load_excel(path2excel, sheetName='所有发送', inOut='开出')
         self.load_excel(path2excel, sheetName='所有接收', inOut='开入')
+        global df
+        df = self.dfDict.get('匹配', DataFrame())
+        for outPort in self.portListDict[path2excel + '所有发送' + '开出']:
+            for inPort in self.portListDict[path2excel + '所有接收' + '开入']:
+                # print(vars(inPort))
+                key2 = outPort.description + outPort.reference + '匹配' + inPort.description + inPort.reference
+                if key2 not in df.index:
+                    df = df.reindex(df.index.tolist() + [key2])
+                    for done in df:
+                        df[done][key2] = self.levenshtein.distance(done, key2)
+                self.dfDict['匹配'] = df
+
+    def distance(self, key2, df, inOut):
+        if key2 not in df.index:
+            df = df.reindex(df.index.tolist() + [key2])
+            for done in df:
+                df[done][key2] = self.levenshtein.distance(done, key2)
+        self.dfDict[inOut] = df
+        return df
 
     def main(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/kb2.xlsx'):
         # for sheetName in self.sheetNameList:
         #     self.dfDict[sheetName] = pd.ExcelFile(path2excel).parse(sheetName)  # load history
+        start_time = time.time()
+
         self.learn_excel('..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls')
         self.load_test()
         with pd.ExcelWriter(path2excel) as writer:
             for key, df in self.dfDict.items():
                 print(key, df)
                 df.to_excel(writer, sheet_name=key)
+        print("--- %s m ---" % ((time.time() - start_time) / 60))
 
     def transform(self, multilevelDict):
         return {str(key).replace("\n", ""):
