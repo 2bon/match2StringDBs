@@ -13,9 +13,9 @@ class kb2():
     sheetNameList = ['开出', '开入', '匹配']
     levenshtein = Levenshtein()
 
-    def __init__(self, matchList: [Match] = [Match], outPortList: [Port] = [Port], inPortList: [Port] = [Port]):
+    def __init__(self, matchList: [Match] = [Match], outPortList: [] = [], inPortList: [] = []):
         self.matchList = matchList
-        self.portListDict = {str: [Port]}
+        self.portListDict = {str: []}
         self.portDict = {str: Port}
         self.dfDict = {}
         for sheetName in self.sheetNameList:
