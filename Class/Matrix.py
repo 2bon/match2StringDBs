@@ -4,6 +4,7 @@ import pandas as pd
 import time
 from pandas import DataFrame
 from strsimpy.levenshtein import Levenshtein
+from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
 from Class.Match import Match
 from Class.Port import Port
@@ -12,6 +13,8 @@ from Class.Port import Port
 class kb2():
     sheetNameList = ['开出', '开入', '匹配']
     levenshtein = Levenshtein()
+    normalized_levenshtein = NormalizedLevenshtein()
+    funcList = [levenshtein, normalized_levenshtein]
 
     def __init__(self, matchList: [Match] = [Match], outPortList: [] = [], inPortList: [] = []):
         self.matchList = matchList
@@ -81,17 +84,17 @@ class kb2():
             for inPort in self.portListDict[path2excel + '所有接收' + '开入']:
                 # print(vars(inPort))
                 key2 = outPort.description + outPort.reference + '匹配' + inPort.description + inPort.reference
-                if key2 not in df.index:
-                    df = df.reindex(df.index.tolist() + [key2])
-                    for done in df:
-                        df[done][key2] = self.levenshtein.distance(done, key2)
-                self.dfDict['匹配'] = df
+
+                self.dfDict['匹配'] = self.distance(key2, df, '匹配')
 
     def distance(self, key2, df, inOut):
         if key2 not in df.index:
             df = df.reindex(df.index.tolist() + [key2])
             for done in df:
-                df[done][key2] = self.levenshtein.distance(done, key2)
+                similarity = self.levenshtein.distance(done, key2)
+                df[done][key2] = similarity
+                # if similarity<0.03:
+                #     print(done+"like"+key2)
         self.dfDict[inOut] = df
         return df
 
