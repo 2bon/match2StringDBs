@@ -11,6 +11,7 @@ from Class.Port import Port
 
 class KnowledgeBase():
     sheetNameList = ['开出', '开入', '匹配']
+    typeList = ['描述', '引用']
     levenshtein = Levenshtein()
 
     def __init__(self, matchList: [Match] = [Match], outPortList: [] = [], inPortList: [] = []):
@@ -19,7 +20,8 @@ class KnowledgeBase():
         self.portDict = {str: Port}
         self.dfDict = {}
         for sheetName in self.sheetNameList:
-            self.dfDict[sheetName] = DataFrame()  # in,out,match
+            for type in self.typeList:
+                self.dfDict[sheetName + type] = DataFrame()  # in,out,match
 
     def learn_folder(self, path2folder='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元'):
         for filename in glob.iglob(path2folder + '**/*.xls', recursive=True):
@@ -29,8 +31,10 @@ class KnowledgeBase():
                 continue
 
     def learn_excel(self, path2excel):
-        self.load_excel(path2excel, sheetName='已配置', inOut='开出')
-        self.load_excel(path2excel, sheetName='已配置', inOut='开入')
+        for type in self.typeList:
+            for inOut in ['开出', '开入']:
+                self.load_excel(path2excel, sheetName='已配置', inOut=inOut, type=type)
+
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         try:
             for row in sheet.iterrows():
@@ -38,16 +42,17 @@ class KnowledgeBase():
                 inPort = Port(row[1]['开入端子描述'], row[1]['开入端子引用'])
                 match = Match(outPort, inPort)
                 self.matchList.append(match)
-                global df
-                df = self.dfDict.get('匹配', DataFrame())
-                key2 = row[1]['开出端子描述'] + row[1]['开出端子引用'] + '匹配' + row[1]['开入端子描述'] + row[1]['开入端子引用']
-                if key2 not in df:
-                    df[key2] = df.get(key2)
-                self.dfDict['匹配'] = df
+                for type in self.typeList:
+                    df2 = self.dfDict.get('匹配' + type, DataFrame())
+                    dfKey = row[1]['开出端子' + type] + '匹配' + row[1]['开入端子' + type]
+                    if dfKey not in df2:
+                        df2[dfKey] = df2.get(dfKey)
+                    self.dfDict['匹配' + type] = df2
         except RuntimeError:
             print(row[1])
 
-    def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls', sheetName='所有发送', inOut='开出'):
+    def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls',
+                   sheetName='所有发送', inOut='开出', type='描述'):
         sheet = pd.ExcelFile(path2excel).parse(sheetName)
         key: str = path2excel + sheetName + inOut
         portList = self.portListDict.get(key, [])
@@ -55,44 +60,51 @@ class KnowledgeBase():
             for row in sheet.iterrows():
                 port = Port(row[1][inOut + '端子描述'], row[1][inOut + '端子引用'])
                 portList.append(port)
-                key2 = row[1][inOut + '端子描述'] + inOut + row[1][inOut + '端子引用']
+                key2 = row[1][inOut + '端子' + type]
                 self.portDict[key2] = port
-                global df
-                df = self.dfDict.get(inOut, DataFrame())
+                dfName = inOut + type
+                global df2
+                df2 = self.dfDict.get(dfName, DataFrame())
                 if sheetName == '已配置':
-                    df[key2] = df.get(key2)
+                    df2[key2] = df2.get(key2)
                 else:  # new
-                    if key2 not in df.index:
-                        df = df.reindex(df.index.tolist() + [key2])
-                        for done in df:
-                            df[done][key2] = self.levenshtein.distance(done, key2)
-                self.dfDict[inOut] = df
+                    if key2 not in df2.index:
+                        df2 = df2.reindex(df2.index.tolist() + [key2])
+                        for done in df2:
+                            similarity = self.levenshtein.distance(done, key2)
+                            df2[done][key2] = similarity
+                            if similarity < 0.3:
+                                print(done + "like" + key2)
+                self.dfDict[dfName] = df2
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
 
     def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
-        self.load_excel(path2excel, sheetName='所有发送', inOut='开出')
-        self.load_excel(path2excel, sheetName='所有接收', inOut='开入')
-        global df
-        df = self.dfDict.get('匹配', DataFrame())
-        for outPort in self.portListDict[path2excel + '所有发送' + '开出']:
-            for inPort in self.portListDict[path2excel + '所有接收' + '开入']:
-                # print(vars(inPort))
-                key2 = outPort.description + outPort.reference + '匹配' + inPort.description + inPort.reference
-                if key2 not in df.index:
-                    df = df.reindex(df.index.tolist() + [key2])
-                    for done in df:
-                        df[done][key2] = self.levenshtein.distance(done, key2)
-                self.dfDict['匹配'] = df
+        for type in self.typeList:
+            self.load_excel(path2excel, sheetName='所有发送', inOut='开出', type=type)
+            self.load_excel(path2excel, sheetName='所有接收', inOut='开入', type=type)
+            key = '匹配' + type
+            df = self.dfDict.get(key, DataFrame())
+            for outPort in self.portListDict[path2excel + '所有发送' + '开出']:
+                for inPort in self.portListDict[path2excel + '所有接收' + '开入']:
+                    if type == '描述':
+                        key2 = outPort.description + '匹配' + inPort.description
+                    else:
+                        key2 = outPort.reference + '匹配' + inPort.reference
+                    if key2 not in df.index:
+                        df = df.reindex(df.index.tolist() + [key2])
+                        for done in df:
+                            df[done][key2] = self.levenshtein.distance(done, key2)
+                    self.dfDict[key] = df
 
     def main(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/KnowledgeBase.xlsx'):
         # for sheetName in self.sheetNameList:
         #     self.dfDict[sheetName] = pd.ExcelFile(path2excel).parse(sheetName)  # load history
         start_time = time.time()
 
-        self.learn_folder()
-        # self.learn_excel('..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls')
+        # self.learn_folder()
+        self.learn_excel('..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls')
         self.load_test()
         with pd.ExcelWriter(path2excel) as writer:
             for key, df in self.dfDict.items():
