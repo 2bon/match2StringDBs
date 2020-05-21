@@ -33,7 +33,7 @@ class KnowledgeBase():
     def learn_excel(self, path2excel):
         for type in self.typeList:
             for inOut in ['开出', '开入']:
-                self.load_excel(path2excel, sheetName='已配置', inOut=inOut, type=type)
+                self.load_excel_sheet(path2excel, sheetName='已配置', inOut=inOut, type=type)
 
         sheet = pd.ExcelFile(path2excel).parse('已配置')
         try:
@@ -51,8 +51,8 @@ class KnowledgeBase():
         except RuntimeError:
             print(row[1])
 
-    def load_excel(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls',
-                   sheetName='所有发送', inOut='开出', type='描述'):
+    def load_excel_sheet(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls',
+                         sheetName='所有发送', inOut='开出', type='描述'):
         sheet = pd.ExcelFile(path2excel).parse(sheetName)
         key: str = path2excel + sheetName + inOut
         portList = self.portListDict.get(key, [])
@@ -74,16 +74,18 @@ class KnowledgeBase():
                             similarity = self.levenshtein.distance(done, key2)
                             df2[done][key2] = similarity
                             if similarity < 0.3:
-                                print(done + "like" + key2)
+                                print(key2 + " ~ " + done)
                 self.dfDict[dfName] = df2
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
 
     def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
+        recDF = self.dfDict.get('匹配recomend', DataFrame(0, index=range(99), columns=range(99)))
+        i = 0
         for type in self.typeList:
-            self.load_excel(path2excel, sheetName='所有发送', inOut='开出', type=type)
-            self.load_excel(path2excel, sheetName='所有接收', inOut='开入', type=type)
+            self.load_excel_sheet(path2excel, sheetName='所有发送', inOut='开出', type=type)
+            self.load_excel_sheet(path2excel, sheetName='所有接收', inOut='开入', type=type)
             key = '匹配' + type
             df = self.dfDict.get(key, DataFrame())
             for outPort in self.portListDict[path2excel + '所有发送' + '开出']:
@@ -95,8 +97,14 @@ class KnowledgeBase():
                     if key2 not in df.index:
                         df = df.reindex(df.index.tolist() + [key2])
                         for done in df:
-                            df[done][key2] = self.levenshtein.distance(done, key2)
+                            similarity = self.levenshtein.distance(done, key2)
+                            df[done][key2] = similarity
+                            if similarity < 0.3:
+                                print(key2 + " ~ " + done)
+                                recDF[0][i] = str(key2 + " ~ " + done)
+                                i = i + 1
                     self.dfDict[key] = df
+                    self.dfDict['匹配recomend'] = recDF
 
     def main(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/KnowledgeBase.xlsx'):
         # for sheetName in self.sheetNameList:
