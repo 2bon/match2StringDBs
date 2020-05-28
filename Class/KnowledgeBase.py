@@ -3,7 +3,7 @@ import glob
 import pandas as pd
 import time
 from pandas import DataFrame
-from strsimpy.levenshtein import Levenshtein
+from strsimpy.qgram import QGram
 
 from Class.Match import Match
 from Class.Port import Port
@@ -12,7 +12,7 @@ from Class.Port import Port
 class KnowledgeBase():
     sheetNameList = ['开出', '开入', '匹配']
     typeList = ['描述', '引用']
-    levenshtein = Levenshtein()
+    get2txt_similarity = QGram(2)
 
     def __init__(self, matchList: [Match] = [Match], outPortList: [] = [], inPortList: [] = []):
         self.matchList = matchList
@@ -71,7 +71,7 @@ class KnowledgeBase():
                     if key2 not in df2.index:
                         df2 = df2.reindex(df2.index.tolist() + [key2])
                         for done in df2:
-                            similarity = self.levenshtein.distance(done, key2)
+                            similarity = self.get2txt_similarity.distance(done, key2)
                             df2[done][key2] = similarity
                             if similarity < 0.3:
                                 print(key2 + " ~ " + done)
@@ -97,7 +97,7 @@ class KnowledgeBase():
                     if key2 not in df.index:
                         df = df.reindex(df.index.tolist() + [key2])
                         for done in df:
-                            similarity = self.levenshtein.distance(done, key2)
+                            similarity = self.get2txt_similarity.distance(done, key2)
                             df[done][key2] = similarity
                             if similarity < 0.3:
                                 print(key2 + " ~ " + done)
@@ -109,16 +109,16 @@ class KnowledgeBase():
     def main(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/KnowledgeBase.xlsx'):
         # for sheetName in self.sheetNameList:
         #     self.dfDict[sheetName] = pd.ExcelFile(path2excel).parse(sheetName)  # load history
-        start_time = time.time()
 
         # self.learn_folder()
         self.learn_excel('..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls')
+        start_time = time.time()
         self.load_test()
+        print("--- %s s ---" % ((time.time() - start_time)))
         with pd.ExcelWriter(path2excel) as writer:
             for key, df in self.dfDict.items():
                 print(key, df)
                 df.to_excel(writer, sheet_name=key)
-        print("--- %s m ---" % ((time.time() - start_time) / 60))
 
     def transform(self, multilevelDict):
         return {str(key).replace("\n", ""):
