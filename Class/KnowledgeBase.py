@@ -3,6 +3,7 @@ import glob
 import pandas as pd
 import time
 from pandas import DataFrame
+from strsimpy.levenshtein import Levenshtein
 from strsimpy.qgram import QGram
 
 from Class.Match import Match
@@ -13,6 +14,9 @@ class KnowledgeBase():
     sheetNameList = ['开出', '开入', '匹配']
     typeList = ['描述', '引用']
     get2txt_similarity = QGram(2)
+    get2txt_similarityList = {
+        'Levenshtein': Levenshtein(),
+        'QGram': QGram(2)}
 
     def __init__(self, matchList: [Match] = [Match], outPortList: [] = [], inPortList: [] = []):
         self.matchList = matchList
@@ -73,14 +77,14 @@ class KnowledgeBase():
                         for done in df2:
                             similarity = self.get2txt_similarity.distance(done, key2)
                             df2[done][key2] = similarity
-                            if similarity < 0.3:
-                                print(key2 + " ~ " + done)
+                            # if similarity < 3:
+                            #     print(key2 + " ~ " + done)
                 self.dfDict[dfName] = df2
             self.portListDict[key] = portList
         except RuntimeError:
             print(row[1])
 
-    def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls'):
+    def load_test(self, path2excel='..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/new/赤厝.xls'):
         recDF = self.dfDict.get('匹配recomend', DataFrame(0, index=range(99), columns=range(99)))
         i = 0
         for type in self.typeList:
@@ -91,15 +95,17 @@ class KnowledgeBase():
             for outPort in self.portListDict[path2excel + '所有发送' + '开出']:
                 for inPort in self.portListDict[path2excel + '所有接收' + '开入']:
                     if type == '描述':
+                        threshold = 2
                         key2 = outPort.description + '匹配' + inPort.description
                     else:
+                        threshold = 4
                         key2 = outPort.reference + '匹配' + inPort.reference
                     if key2 not in df.index:
                         df = df.reindex(df.index.tolist() + [key2])
                         for done in df:
                             similarity = self.get2txt_similarity.distance(done, key2)
                             df[done][key2] = similarity
-                            if similarity < 0.3:
+                            if similarity < threshold:
                                 print(key2 + " ~ " + done)
                                 recDF[0][i] = str(key2 + " ~ " + done)
                                 i = i + 1
@@ -110,8 +116,8 @@ class KnowledgeBase():
         # for sheetName in self.sheetNameList:
         #     self.dfDict[sheetName] = pd.ExcelFile(path2excel).parse(sheetName)  # load history
 
-        # self.learn_folder()
-        self.learn_excel('..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls')
+        self.learn_folder()
+        # self.learn_excel('..\excel\learn/220-母线&线路-第一套合并单元&第一套合并单元/赤厝.xls')
         start_time = time.time()
         self.load_test()
         print("--- %s s ---" % ((time.time() - start_time)))
